@@ -1,7 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "name": "solarburn",
-  "outputDirectory": ".",
+  "framework": null,
   "cleanUrls": true,
-  "rewrites": [{ "source": "/", "destination": "/frontend/dashboard/dashboard.html" }]
+  "trailingSlash": false,
+  "routes": [
+    { "src": "/", "status": 307, "headers": { "Location": "/dashboard" } },
+    { "src": "/favicon.ico", "dest": "/frontend/dashboard/favicon.svg" },
+    { "src": "/(.*)", "dest": "/frontend/dashboard/$1" }
+  ]
 }
