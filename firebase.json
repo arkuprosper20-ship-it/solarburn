@@ -1,0 +1,36 @@
+{
+  "hosting": [
+    {
+      "site": "solar-f",
+      "public": "frontend/dashboard",
+      "rewrites": [
+        { "source": "/", "destination": "/dashboard.html" },
+        { "source": "/index.html", "destination": "/dashboard.html" }
+      ],
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "**/*.py",
+        "**/*.bat",
+        "**/*.cmd",
+        "**/*.sh",
+        "**/*.ps1",
+        "**/*.exe",
+        "**/*.dll",
+        "**/Solar Low Energy X-ray Spectrometer/**",
+        "**/High Energy L1 Orbiting X-ray Spectrometer/**"
+      ],
+      "headers": [
+        {
+          "source": "**/*.@(js|css)",
+          "headers": [{ "key": "Cache-Control", "value": "max-age=3600" }]
+        },
+        {
+          "source": "**/*.html",
+          "headers": [{ "key": "Cache-Control", "value": "max-age=300" }]
+        }
+      ]
+    }
+  ]
+}

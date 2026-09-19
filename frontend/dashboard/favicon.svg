@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="SuryaDrishti solar flare monitor">
+  <defs>
+    <radialGradient id="disc" cx="42%" cy="36%" r="72%">
+      <stop offset="0%"   stop-color="#fffbe8"/>
+      <stop offset="30%"  stop-color="#ffd54a"/>
+      <stop offset="62%"  stop-color="#ff9e00"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#0084ff"/>
+    </linearGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- deep space plate -->
+  <rect width="64" height="64" rx="14" fill="#05060f"/>
+  <rect width="64" height="64" rx="14" fill="none" stroke="rgba(0,212,255,0.28)" stroke-width="1.2"/>
+  <circle cx="14" cy="13" r="0.9" fill="#ffffff" opacity="0.75"/>
+  <circle cx="50" cy="17" r="0.7" fill="#ffffff" opacity="0.55"/>
+  <circle cx="47" cy="50" r="0.8" fill="#ffffff" opacity="0.6"/>
+  <circle cx="13" cy="47" r="0.6" fill="#ffffff" opacity="0.5"/>
+
+  <!-- corona -->
+  <circle cx="32" cy="32" r="21" fill="#ff8c00" opacity="0.13"/>
+  <circle cx="32" cy="32" r="17" fill="#ffb300" opacity="0.16"/>
+
+  <!-- flare spikes (X-class burst signature) -->
+  <g stroke="#ffb703" stroke-width="2.4" stroke-linecap="round" opacity="0.95" filter="url(#soft)">
+    <line x1="32" y1="3.5"  x2="32" y2="10.5"/>
+    <line x1="32" y1="53.5" x2="32" y2="60.5"/>
+    <line x1="3.5" y1="32"  x2="10.5" y2="32"/>
+    <line x1="53.5" y1="32" x2="60.5" y2="32"/>
+  </g>
+  <g stroke="#ffd54a" stroke-width="1.9" stroke-linecap="round" opacity="0.8" filter="url(#soft)">
+    <line x1="11.8" y1="11.8" x2="16.7" y2="16.7"/>
+    <line x1="52.2" y1="11.8" x2="47.3" y2="16.7"/>
+    <line x1="11.8" y1="52.2" x2="16.7" y2="47.3"/>
+    <line x1="52.2" y1="52.2" x2="47.3" y2="47.3"/>
+  </g>
+
+  <!-- solar disk -->
+  <circle cx="32" cy="32" r="13" fill="url(#disc)"/>
+  <circle cx="32" cy="32" r="13" fill="none" stroke="#fff3c4" stroke-width="0.9" opacity="0.55"/>
+  <!-- active region -->
+  <circle cx="27.5" cy="28" r="3.1" fill="#7c2d12" opacity="0.5"/>
+  <circle cx="36.5" cy="35.5" r="2.2" fill="#7c2d12" opacity="0.42"/>
+
+  <!-- Aditya-L1 halo orbit at L1 -->
+  <ellipse cx="32" cy="32" rx="25" ry="8.6" fill="none"
+           stroke="url(#ring)" stroke-width="1.7" opacity="0.95"
+           transform="rotate(-28 32 32)"/>
+  <ellipse cx="32" cy="32" rx="25" ry="8.6" fill="none"
+           stroke="#00d4ff" stroke-width="0.7" opacity="0.35"
+           transform="rotate(32 32 32)"/>
+  <circle cx="52.6" cy="20.5" r="2.5" fill="#00d4ff"/>
+  <circle cx="52.6" cy="20.5" r="4.4" fill="none" stroke="#00d4ff" stroke-width="0.8" opacity="0.5"/>
+</svg>

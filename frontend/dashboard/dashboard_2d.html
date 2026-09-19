@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aditya-L1 | ISRO Solar Situational Awareness Center - 2D Dashboard</title>
+<meta name="description" content="Real-time Aditya-L1 SoLEXS/HEL1OS X-ray telemetry — Simplified 2D dashboard">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="dash-header">
+  <div class="h-left">
+    <svg class="isro-svg" viewBox="0 0 44 44" width="40" height="40">
+      <circle cx="22" cy="22" r="20" fill="none" stroke="#ff8c00" stroke-width="2"/>
+      <circle cx="22" cy="22" r="12" fill="none" stroke="#ff8c00" stroke-width="1.5"/>
+      <circle cx="22" cy="22" r="4" fill="#ff8c00"/>
+      <ellipse cx="22" cy="22" rx="20" ry="7" fill="none" stroke="#00c8ff" stroke-width="1.5" transform="rotate(-30 22 22)"/>
+      <ellipse cx="22" cy="22" rx="20" ry="7" fill="none" stroke="#00c8ff" stroke-width="0.8" opacity="0.5" transform="rotate(30 22 22)"/>
+    </svg>
+    <div class="h-title">
+      <span class="h-agency">ISRO · SPACE APPLICATIONS CENTRE · ADITYA-L1 MISSION · PS-15</span>
+      <h1>SOLAR SITUATIONAL AWARENESS CENTER — REAL-TIME FLARE MONITOR (2D)</h1>
+    </div>
+  </div>
+  <div class="h-right">
+    <div class="clock-box">
+      <div class="ck-item"><span class="ck-lbl">LOCAL</span><span class="ck-val" id="local-clock">--:--:--</span></div>
+      <div class="ck-sep"></div>
+      <div class="ck-item"><span class="ck-lbl">UTC</span><span class="ck-val" id="utc-clock">--:--:-- UTC</span></div>
+    </div>
+    <div class="h-actions">
+      <a href="http://localhost:8501" target="_blank" style="text-decoration: none;"><button class="hbtn amber" title="Open Streamlit Scientific Dashboard">📊 Streamlit Dashboard</button></a>
+      <button class="hbtn red" id="btn-sound" title="Enable space ambient & telemetry sound">🔇 MUTE</button>
+      <button class="hbtn" id="btn-notify" title="Enable alert notifications">🔔 NOTIFY</button>
+    </div>
+    <div class="sys-status" style="background:rgba(0,200,255,0.08);border:1px solid rgba(0,200,255,0.25);color:#00c8ff;margin-right:8px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;font-size:0.65rem;font-family:'Orbitron',sans-serif;font-weight:700">
+      <span class="sdot" style="background:#00c8ff;box-shadow:0 0 8px #00c8ff;width:6px;height:6px;border-radius:50%;display:inline-block"></span><span class="stxt">IS4OM / DSSAM ACTIVE</span>
+    </div>
+    <div class="sys-status" id="sys-status"><span class="sdot"></span><span class="stxt">FEED ACTIVE</span></div>
+  </div>
+</header>
+
+<!-- MAIN GRID -->
+<div class="main-grid">
+
+  <!-- LEFT COLUMN: Static Sun Image -->
+  <section class="gc left-col glass">
+    <div class="card-hdr"><span class="clbl">☀ ADITYA-L1 SOLAR DISK — STATIC VIEW</span></div>
+    <div class="sun-static-wrap" style="text-align:center; padding:1rem;">
+      <img src="assets/sun_orange.png" alt="Solar Disk" style="max-width:100%; height:auto;"/>
+    </div>
+  </section>
+
+  <!-- CENTER COLUMN: Charts + Terminal -->
+  <section class="gc center-col">
+    <!-- Telemetry Chart -->
+    <div class="glass chart-card">
+      <div class="card-hdr"><span class="clbl">📊 REAL-TIME SoLEXS &amp; HEL1OS FLUX (1s cadence)</span>
+        <div class="legend-row"><span class="ldot cyan"></span><span>SoLEXS</span><span class="ldot amber"></span><span>HEL1OS</span></div>
+      </div>
+      <div class="chart-wrap h200"><canvas id="telemetryChart"></canvas></div>
+      <div class="joint-ingest-status" style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.02);border-top:1px solid var(--brd);font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:#94a3b8">
+        <span>🔄 Joint Telemetry Ingestion: <span style="color:#00c8ff;font-weight:700">ACTIVE (1s Cadence)</span></span>
+        <span>Spectral Hardness (HR): <span id="joint-hr" style="color:#fbbf24;font-weight:700">--</span></span>
+        <span>Neupert Coherence: <span id="joint-coherence" style="color:#f87171;font-weight:700">--</span></span>
+      </div>
+    </div>
+    <!-- Probability Chart -->
+    <div class="glass chart-card">
+      <div class="card-hdr"><span class="clbl">📈 FLARE CLASS PROBABILITY — NEXT 3 HRS</span>
+        <div class="legend-row small"><span class="ldot" style="background:#ef4444"></span>X-Class<span class="ldot" style="background:#f97316"></span>M-Class<span class="ldot" style="background:#eab308"></span>C-Class<span class="ldot" style="background:#22c55e"></span>B-Class</div>
+      </div>
+      <div class="chart-wrap h140"><canvas id="probChart"></canvas></div>
+    </div>
+    <!-- Terminal -->
+    <div class="glass terminal-card">
+      <div class="card-hdr"><span class="clbl">📟 RAW TELEMETRY FEED — ADITYA-L1 @ L1 POINT</span><span class="chip green" id="feed-chip">● STREAMING</span></div>
+      <div class="terminal-log" id="terminal-log"></div>
+    </div>
+  </section>
+
+  <!-- RIGHT COLUMN: Alerts + Data -->
+  <section class="gc right-col">
+    <!-- Alert Card -->
+    <div class="glass alert-card low" id="alert-panel">
+      <div class="al-top"><span class="al-icon" id="al-icon">✓</span><span class="al-level" id="al-level">NOMINAL</span></div>
+      <div class="al-sub" id="al-sub">RISK OF SOLAR FLARE: LOW</div>
+      <p class="al-desc" id="al-desc">Background coronal X-ray. No pre-flare signatures.</p>
+      <div class="gauges-row">
+        <div class="gauge-box"><canvas id="gaugeM" width="110" height="68"></canvas><div class="g-info"><span class="g-lbl">M-Class Prob</span><span class="g-val" id="prob-m">1.5%</span></div></div>
+        <div class="gauge-box"><canvas id="gaugeX" width="110" height="68"></canvas><div class="g-info"><span class="g-lbl">X-Class Prob</span><span class="g-val" id="prob-x">0.3%</span></div></div>
+      </div>
+    </div>
+    <!-- Active Regions -->
+    <div class="glass">
+      <div class="card-hdr"><span class="clbl">🔴 ACTIVE REGIONS</span></div>
+      <table class="dtable"><thead><tr><th>Region</th><th>Loc</th><th>Class</th><th>Prob</th></tr></thead><tbody><tr><td class="arn">AR4087</td><td>N18 E07</td><td>β-γ-δ</td><td class="pc"><span id="a87m">M:5%</span><span id="a87x">X:1%</span></td></tr><tr><td class="arn">AR4086</td><td>N05 W23</td><td>β-γ</td><td class="pc"><span id="a86m">M:3%</span><span id="a86x">X:1%</span></td></tr><tr><td class="arn">AR4085</td><td>S17 E02</td><td>β-γ-δ</td><td class="pc"><span id="a85m">M:4%</span><span id="a85x">X:1%</span></td></tr></tbody></table>
+    </div>
+    <!-- Flare Events -->
+    <div class="glass">
+      <div class="card-hdr"><span class="clbl">⚡ LATEST FLARE EVENTS</span></div>
+      <table class="dtable"><thead><tr><th>Time</th><th>Region</th><th>Class</th><th>Loc</th></tr></thead><tbody><tr><td id="ft0">--:--</td><td>AR4087</td><td id="fc0" class="arn">--</td><td>N18 E07</td></tr></tbody></table>
+    </div>
+    <!-- Solar Wind + Controls -->
+    <div class="glass">
+      <div class="card-hdr"><span class="clbl">🌊 SOLAR WIND / GEOMAGNETIC</span></div>
+      <div class="wind-grid"><div class="wi"><span class="wl">Speed</span><span class="wv" id="wind-spd">452 km/s</span></div><div class="wi"><span class="wl">Bz (nT)</span><span class="wv" id="wind-bz">-3.2</span></div><div class="wi"><span class="wl">Density</span><span class="wv" id="wind-den">6.1/cm³</span></div><div class="wi"><span class="wl">Geo Impact</span><span class="wv geo" id="geo-imp">G0 Quiet</span></div></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Hidden elements to satisfy dashboard.js requirements without crash -->
+<div style="display: none !important;">
+  <canvas id="sunCanvas"></canvas>
+  <canvas id="mapCanvas"></canvas>
+  <canvas id="cmeCanvas"></canvas>
+  <canvas id="sepCanvas"></canvas>
+  <canvas id="suitCanvas"></canvas>
+  <canvas id="shapChart"></canvas>
+  <canvas id="qppChart"></canvas>
+  <canvas id="histChart"></canvas>
+  <canvas id="foreChart"></canvas>
+  <div id="sun-wrap"></div>
+  <div id="ar-AR4087"></div>
+  <div id="ar-AR4086"></div>
+  <div id="ar-AR4085"></div>
+  <button id="wl-304"></button>
+  <button id="wl-171"></button>
+  <button id="wl-193"></button>
+  <button id="wl-hmi"></button>
+  <div id="solar-mode"></div>
+  <select id="sim-center"><option value="subsolar"></option></select>
+  <input id="sim-man-lat" value="0"/>
+  <input id="sim-man-lon" value="0"/>
+  <select id="sim-mode"><option value="auto"></option></select>
+  <div id="custom-controls"></div>
+  <div id="manual-coords"></div>
+  <span id="lbl-flare-lon"></span>
+  <span id="lbl-man-lat"></span>
+  <span id="lbl-man-lon"></span>
+  <select id="sim-class"><option value="M"></option></select>
+  <div id="sat-list"></div>
+  <div id="sat-risk-ISS"></div>
+  <div id="sat-dot-ISS"></div>
+  <div id="shap-tbody"></div>
+  <div id="pinn-state"></div>
+  <div id="pinn-coherence"></div>
+  <div id="qpp-status"></div>
+  <div id="fore-warning"></div>
+  <div id="hist-desc"></div>
+  <span id="hist-legend-label"></span>
+  <div id="hist-legend"></div>
+  <button id="btn-demo"></button>
+  <button id="btn-play"></button>
+  <button id="btn-flare"></button>
+</div>
+
+<script src="dashboard.js"></script>
+</body>
+</html>

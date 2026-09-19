@@ -1,0 +1,23 @@
+FROM nginx:alpine
+
+# Copy HTML, JS, CSS, and engine
+COPY frontend/dashboard/dashboard.html /usr/share/nginx/html/index.html
+COPY frontend/dashboard/dashboard.html /usr/share/nginx/html/dashboard.html
+COPY frontend/dashboard/dashboard_2d.html /usr/share/nginx/html/dashboard_2d.html
+COPY frontend/dashboard/dashboard.css /usr/share/nginx/html/dashboard.css
+COPY frontend/dashboard/dashboard.js /usr/share/nginx/html/dashboard.js
+COPY frontend/dashboard/react.production.min.js /usr/share/nginx/html/react.production.min.js
+COPY frontend/dashboard/react-dom.production.min.js /usr/share/nginx/html/react-dom.production.min.js
+COPY frontend/dashboard/babel.min.js /usr/share/nginx/html/babel.min.js
+COPY frontend/dashboard/chart.js /usr/share/nginx/html/chart.js
+COPY frontend/scripts/sepEngine.js /usr/share/nginx/html/sepEngine.js
+COPY frontend/scripts/satellite.min.js /usr/share/nginx/html/satellite.min.js
+COPY backend/data/telemetry_inline.json /usr/share/nginx/html/telemetry_inline.json
+COPY ["frontend/dashboard/Solar Low Energy X-ray Spectrometer/", "/usr/share/nginx/html/Solar Low Energy X-ray Spectrometer/"]
+
+# Copy assets (images, suits, etc.)
+COPY frontend/assets/ /usr/share/nginx/html/assets/
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

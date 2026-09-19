@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "codex-i"
+  },
+  "targets": {
+    "codex-i": {
+      "hosting": {
+        "dashboard": ["solar-f"]
+      }
+    }
+  }
+}
