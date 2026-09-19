@@ -6,7 +6,8 @@
       "rewrites": [
         { "source": "/", "destination": "/index.html" },
         { "source": "/3d", "destination": "/dashboard.html" },
-        { "source": "/2d", "destination": "/dashboard_2d.html" }
+        { "source": "/2d", "destination": "/dashboard_2d.html" },
+        { "source": "/explorer", "destination": "/explorer.html" }
       ],
       "ignore": [
         "firebase.json",
