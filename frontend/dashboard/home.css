@@ -1,0 +1,150 @@
+/* ==========================================================================
+   SuryaDrishti — overview / landing page styles
+   Loaded only by index.html, on top of dashboard.css (which supplies the
+   design tokens, .glass card and the .sd-* shell components).
+   ========================================================================== */
+.home-body{
+  background-image:
+    radial-gradient(ellipse 70% 55% at 18% 8%,rgba(255,140,0,0.11) 0%,transparent 60%),
+    radial-gradient(ellipse 65% 55% at 85% 25%,rgba(0,200,255,0.10) 0%,transparent 60%),
+    linear-gradient(rgba(0,212,255,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,212,255,0.02) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,44px 44px,44px 44px;
+}
+.home{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:1.15rem;padding-bottom:1.5rem}
+
+/* ---------------------------------------------------------------- hero --- */
+.home-hero{
+  display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);
+  align-items:center;gap:1.5rem;padding:1.6rem 1.4rem;
+  background:linear-gradient(135deg,rgba(9,12,30,0.9),rgba(4,6,18,0.72));
+  border:1px solid rgba(0,212,255,0.22);border-radius:14px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6),inset 0 1px 0 rgba(0,212,255,0.08);
+  position:relative;overflow:hidden
+}
+.home-hero::before{
+  content:"";position:absolute;top:-45%;right:-12%;width:60%;height:190%;
+  background:radial-gradient(circle,rgba(255,158,0,0.14),transparent 62%);
+  pointer-events:none
+}
+.home-hero-l{position:relative;z-index:1}
+.home-kicker{
+  display:inline-block;font-size:0.56rem;font-weight:700;letter-spacing:0.22em;
+  color:var(--cyan);text-shadow:0 0 12px rgba(0,212,255,0.45)
+}
+.home-title{
+  font-family:'Orbitron',sans-serif;font-size:clamp(1.9rem,5.2vw,3.3rem);
+  font-weight:900;letter-spacing:0.1em;color:#fff;line-height:1.06;margin:0.5rem 0 0.7rem
+}
+.home-title span{color:var(--amber);text-shadow:0 0 34px rgba(255,158,0,0.6)}
+.home-tag{
+  font-size:clamp(0.76rem,1.6vw,0.9rem);line-height:1.62;color:#9fb0c8;max-width:56ch
+}
+.home-cta{display:flex;flex-wrap:wrap;gap:0.6rem;margin:1.05rem 0 0.7rem}
+.home-btn{
+  display:inline-flex;align-items:center;gap:0.4rem;text-decoration:none;
+  padding:0.66rem 1.15rem;border-radius:9px;cursor:pointer;
+  font-family:'Orbitron',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.06em;
+  color:#cbd8e8;border:1px solid rgba(255,255,255,0.13);background:rgba(255,255,255,0.035);
+  transition:color .22s,border-color .22s,background .22s,transform .22s,box-shadow .22s
+}
+.home-btn:hover{color:#fff;border-color:rgba(0,212,255,0.55);background:rgba(0,212,255,0.12);transform:translateY(-2px)}
+.home-btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.home-btn-primary{
+  color:#0a1020;border-color:transparent;
+  background:linear-gradient(135deg,var(--amber),#ff6a00);
+  box-shadow:0 10px 26px rgba(255,140,0,0.32)
+}
+.home-btn-primary:hover{color:#0a1020;box-shadow:0 14px 34px rgba(255,140,0,0.45)}
+.home-hint{font-size:0.62rem;color:#5c6b83}
+.home-hint kbd{
+  padding:1px 6px;border-radius:4px;background:rgba(0,212,255,0.1);
+  border:1px solid rgba(0,212,255,0.3);color:#a5f3fc;
+  font-family:'JetBrains Mono',monospace;font-size:0.6rem
+}
+.home-hero-r{display:flex;justify-content:center;position:relative;z-index:1}
+.home-mark{
+  width:min(176px,42vw);height:auto;border-radius:26px;
+  filter:drop-shadow(0 0 34px rgba(255,150,20,0.45)) drop-shadow(0 0 80px rgba(0,212,255,0.2));
+  animation:homeFloat 5.5s ease-in-out infinite
+}
+@keyframes homeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+/* --------------------------------------------------------- view cards --- */
+.home-views{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0.85rem}
+.home-view{
+  display:flex;flex-direction:column;gap:0.5rem;text-decoration:none;
+  position:relative;overflow:hidden;
+  transition:transform .3s cubic-bezier(.165,.84,.44,1),border-color .3s,box-shadow .3s
+}
+.home-view::after{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--cyan),transparent);
+  opacity:0;transition:opacity .3s
+}
+.home-view:hover{
+  transform:translateY(-5px);border-color:rgba(0,212,255,0.45);
+  box-shadow:0 22px 48px rgba(0,212,255,0.16),0 0 24px rgba(0,212,255,0.08)
+}
+.home-view:hover::after{opacity:1}
+.home-view:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.hv-ico{
+  font-size:1.7rem;line-height:1;width:46px;height:46px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.22)
+}
+.home-view h2{
+  font-family:'Orbitron',sans-serif;font-size:0.95rem;font-weight:700;
+  letter-spacing:0.03em;color:#fff
+}
+.home-view p{font-size:0.72rem;line-height:1.62;color:#8fa2bb;flex:1}
+.hv-go{
+  font-family:'Orbitron',sans-serif;font-size:0.62rem;font-weight:700;
+  letter-spacing:0.08em;color:var(--cyan);margin-top:0.15rem
+}
+
+/* ------------------------------------------------------------ metrics --- */
+.home-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.7rem}
+.hm-card{
+  display:flex;flex-direction:column;gap:0.25rem;padding:0.85rem 1rem;
+  border-radius:10px;background:rgba(7,9,22,0.72);
+  border:1px solid rgba(0,212,255,0.16);border-top:2px solid rgba(0,212,255,0.5);
+  box-shadow:0 8px 26px rgba(0,0,0,0.5)
+}
+.hm-v{
+  font-family:'Orbitron',sans-serif;font-size:1.38rem;font-weight:900;color:#fff;
+  letter-spacing:0.02em;text-shadow:0 0 18px rgba(0,212,255,0.3)
+}
+.hm-v small{font-size:0.6rem;color:var(--cyan);margin-left:3px;font-weight:700}
+.hm-l{font-size:0.6rem;color:#6d7f99;letter-spacing:0.05em;line-height:1.4}
+
+/* -------------------------------------------------------------- about --- */
+.home-about h2{
+  font-family:'Orbitron',sans-serif;font-size:0.85rem;font-weight:700;
+  letter-spacing:0.05em;color:#fff;margin-bottom:0.15rem
+}
+.home-steps{
+  margin:0;padding-left:1.15rem;display:flex;flex-direction:column;gap:0.42rem;
+  font-size:0.73rem;line-height:1.6;color:#93a5bd
+}
+.home-steps li::marker{color:var(--amber);font-weight:700}
+.home-steps b{color:#dbe6f5}
+
+/* ------------------------------------------------------------- footer --- */
+.home-foot{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:0.6rem;padding:0.8rem 0.2rem 0;border-top:1px solid rgba(255,255,255,0.07);
+  font-size:0.63rem;color:#55647c
+}
+.home-foot a{color:var(--cyan);text-decoration:none}
+.home-foot a:hover{text-decoration:underline}
+
+/* -------------------------------------------------------- responsive --- */
+@media (max-width:920px){
+  .home-hero{grid-template-columns:1fr;text-align:left;padding:1.3rem 1.1rem}
+  .home-hero-r{order:-1;justify-content:flex-start}
+  .home-mark{width:118px;border-radius:20px}
+}
+@media (prefers-reduced-motion:reduce){
+  .home-mark{animation:none}
+  .home-view,.home-btn{transition:none}
+}

@@ -1,0 +1,102 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuryaDrishti — Aditya-L1 Solar Flare Intelligence | Overview</title>
+<meta name="description" content="SuryaDrishti: real-time Aditya-L1 SoLEXS and HEL1OS X-ray monitoring with causal flare nowcasting and physics-guided forecasting. Choose the 3D command deck or the 2D analytics console.">
+<meta name="theme-color" content="#05060f">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="application-name" content="SuryaDrishti">
+<meta name="apple-mobile-web-app-title" content="SuryaDrishti">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SuryaDrishti">
+<meta property="og:title" content="SuryaDrishti — Aditya-L1 Solar Flare Intelligence">
+<meta property="og:description" content="Real-time SoLEXS/HEL1OS X-ray monitoring, causal flare nowcasting and physics-guided forecasting. 3D command deck and 2D analytics console.">
+<meta property="og:image" content="icon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SuryaDrishti — Aditya-L1 Solar Flare Intelligence">
+<meta name="twitter:description" content="Real-time SoLEXS/HEL1OS X-ray monitoring, causal flare nowcasting and physics-guided forecasting. 3D command deck and 2D analytics console.">
+<meta name="twitter:image" content="icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="home.css">
+</head>
+<body class="home-body">
+
+<div class="sd-shell" id="sd-shell"></div>
+
+<main class="home">
+  <section class="home-hero">
+    <div class="home-hero-l">
+      <span class="home-kicker">ISRO · ADITYA-L1 MISSION · PS-15</span>
+      <h1 class="home-title">SURYA<span>DRISHTI</span></h1>
+      <p class="home-tag">Solar flare intelligence from Aditya-L1 X-ray telemetry — causal nowcasting, physics-guided forecasting, and two operator views you can switch between instantly.</p>
+      <div class="home-cta">
+        <a class="home-btn home-btn-primary" href="dashboard.html">🌐 Launch 3D Command Deck</a>
+        <a class="home-btn" href="dashboard_2d.html">📊 Open 2D Analytics</a>
+      </div>
+      <p class="home-hint">Press <kbd>?</kbd> inside any view for keyboard shortcuts · <kbd>F</kbd> hides the chrome for presentations</p>
+    </div>
+    <div class="home-hero-r">
+      <img class="home-mark" src="favicon.svg" width="176" height="176" alt="SuryaDrishti solar flare mark">
+    </div>
+  </section>
+
+  <section class="home-views">
+    <a class="home-view glass" href="dashboard.html">
+      <div class="hv-ico">🌐</div>
+      <h2>3D Command Deck</h2>
+      <p>Interactive 3D Earth and solar disk, satellite constellations with SGP4 ephemeris, ionospheric HF-outage footprint, CME propagation, SEP engine and payload health — plus a fullscreen inspector that can zoom and track any object.</p>
+      <span class="hv-go">Open deck →</span>
+    </a>
+    <a class="home-view glass" href="dashboard_2d.html">
+      <div class="hv-ico">📊</div>
+      <h2>2D Analytics</h2>
+      <p>Lightweight console for operators on thin clients: live SoLEXS/HEL1OS light curves, joint telemetry ingestion status, flare-class probability, active-region risk tables and a streaming raw telemetry feed.</p>
+      <span class="hv-go">Open console →</span>
+    </a>
+    <a class="home-view glass" href="http://localhost:8501" target="_blank" rel="noopener">
+      <div class="hv-ico">🧠</div>
+      <h2>Streamlit ML Console</h2>
+      <p>Full scientific workbench (runs locally on port 8501): validation splits, ROC/PR curves, SHAP feature importance, QPP spectra, DEM inversion and the leakage-free chronological evaluation trail.</p>
+      <span class="hv-go">Start locally →</span>
+    </a>
+  </section>
+
+  <section class="home-metrics">
+    <div class="hm-card"><span class="hm-v">93.2%</span><span class="hm-l">Nowcast recall vs NOAA GOES</span></div>
+    <div class="hm-card"><span class="hm-v">0.894</span><span class="hm-l">ROC-AUC (random split)</span></div>
+    <div class="hm-card"><span class="hm-v">16.51<small>min</small></span><span class="hm-l">Mean lead time</span></div>
+    <div class="hm-card"><span class="hm-v">&lt;1<small>ms</small></span><span class="hm-l">Per-window inference</span></div>
+  </section>
+
+  <section class="home-about glass">
+    <h2>What the pipeline does</h2>
+    <ol class="home-steps">
+      <li><b>Fuse</b> raw 1-second SoLEXS soft X-ray and HEL1OS hard X-ray streams across 259,000+ coincident timestamps.</li>
+      <li><b>Nowcast</b> flare onsets with a strictly history-only rolling baseline, so nothing depends on future samples.</li>
+      <li><b>Forecast</b> activity up to 30 minutes ahead with pre-flare rise, QPP variance and Neupert-effect indicators.</li>
+      <li><b>Present</b> live alert levels, ionospheric impact and CME arrival estimates for operators.</li>
+    </ol>
+  </section>
+
+  <footer class="home-foot">
+    <span>SuryaDrishti · Bharatiya Antriksh Hackathon 2026 · Problem Statement PS-15</span>
+    <a href="https://github.com/arkuprosper20-ship-it/solarburn" target="_blank" rel="noopener">Source repository</a>
+  </footer>
+</main>
+
+<!-- shared application chrome: nav, splash, toasts, shortcuts -->
+<script src="ui-shell.js"></script>
+</body>
+</html>
