@@ -105,6 +105,7 @@ input[type=range]{width:100%;accent-color:var(--amber);margin:4px 0 8px}
       <h1>Solar system explorer</h1>
       <p>Aditya-L1 sits at L1, between Earth and the Sun</p>
     </div>
+    <button class="btn icon glass" id="btnFull" aria-label="Toggle fullscreen" title="Fullscreen (F)" aria-pressed="false">⛶</button>
     <button class="btn icon glass" id="btnMenu" aria-label="Show or hide controls" aria-expanded="true">☰</button>
   </div>
 
@@ -153,7 +154,8 @@ input[type=range]{width:100%;accent-color:var(--amber);margin:4px 0 8px}
       <dt>O · L · B</dt><dd>Toggle orbits, labels, asteroid belt</dd>
       <dt>S</dt><dd>Switch compressed and true distances</dd>
       <dt>R or Esc</dt><dd>Reset view</dd>
-      <dt>F</dt><dd>Hide the interface for presentations</dd>
+      <dt>F</dt><dd>Toggle fullscreen</dd>
+      <dt>H</dt><dd>Hide the interface for presentations</dd>
       <dt>?</dt><dd>Show or hide this list</dd>
     </dl>
     <button class="btn" id="helpClose">Close</button>
@@ -251,6 +253,175 @@ function ringTexture(){
   }
   return new THREE.CanvasTexture(c);
 }
+/* ---------- procedural texture engine (seamless sphere value-noise) ---------- */
+function makeNoise3(seed){
+  const rnd = mulberry32(seed), p = new Uint8Array(256), perm = new Uint8Array(512);
+  for (let i=0;i<256;i++) p[i] = i;
+  for (let i=255;i>0;i--){ const j = (rnd()*(i+1))|0; const t = p[i]; p[i] = p[j]; p[j] = t; }
+  for (let i=0;i<512;i++) perm[i] = p[i & 255];
+  const fade = t => t*t*(3-2*t), h = (x,y,z) => perm[(perm[(perm[x & 255] + y) & 255] + z) & 255] / 255;
+  return function (x, y, z){
+    const X = Math.floor(x), Y = Math.floor(y), Z = Math.floor(z);
+    const xf = x-X, yf = y-Y, zf = z-Z, u = fade(xf), v = fade(yf), w = fade(zf);
+    const l = (a,b,t) => a + (b-a)*t;
+    return l(
+      l( l(h(X,Y,Z), h(X+1,Y,Z), u), l(h(X,Y+1,Z), h(X+1,Y+1,Z), u), v),
+      l( l(h(X,Y,Z+1), h(X+1,Y,Z+1), u), l(h(X,Y+1,Z+1), h(X+1,Y+1,Z+1), u), v), w);
+  };
+}
+function fbm3(n, x, y, z, oct){
+  let a = 0, amp = .5, f = 1, tot = 0;
+  for (let i=0;i<oct;i++){ a += amp * n(x*f, y*f, z*f); tot += amp; f *= 2.03; amp *= .5; }
+  return a / tot;
+}
+function mix3(a, b, t){ t = Math.max(0, Math.min(1, t)); return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+function canvasSphere(w, h, fn){
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'), img = g.createImageData(w, h), d = img.data;
+  for (let y=0;y<h;y++){
+    const v = y / h, lat = (v - .5) * Math.PI, cl = Math.cos(lat), Z = Math.sin(lat);
+    for (let x=0;x<w;x++){
+      const u = x / w, a = u * 2 * Math.PI;
+      const col = fn(Math.cos(a)*cl, Math.sin(a)*cl, Z, u, v);
+      const i = (y*w + x) * 4;
+      d[i] = col[0]; d[i+1] = col[1]; d[i+2] = col[2]; d[i+3] = col[3] === undefined ? 255 : col[3];
+    }
+  }
+  g.putImageData(img, 0, 0);
+  return c;
+}
+function craterPass(c, count, seed, strength){
+  const g = c.getContext('2d'), rnd = mulberry32(seed);
+  function draw(x, y, r, a){
+    let gr = g.createRadialGradient(x, y, r*.15, x, y, r);
+    gr.addColorStop(0, 'rgba(0,0,0,' + (a*.8).toFixed(3) + ')');
+    gr.addColorStop(.75, 'rgba(0,0,0,' + (a*.25).toFixed(3) + ')');
+    gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.29); g.fill();
+    gr = g.createRadialGradient(x - r*.3, y - r*.3, 0, x, y, r*.8);
+    gr.addColorStop(0, 'rgba(255,255,255,' + (a*.5).toFixed(3) + ')');
+    gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r*.8, 0, 6.29); g.fill();
+  }
+  for (let i=0;i<count;i++){
+    const x = rnd()*c.width, y = c.height*(.08 + rnd()*.84);
+    const r = 1.5 + Math.pow(rnd(), 2.2) * c.width * .035;
+    const a = strength * (.25 + rnd()*.55);
+    draw(x, y, r, a);
+    draw(x - c.width, y, r, a); draw(x + c.width, y, r, a);   // keep seam clean
+  }
+}
+function tex(c){ const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t; }
+
+/* ---------- per-body painters ---------- */
+function mercuryTex(){
+  const n = makeNoise3(41);
+  const c = canvasSphere(512, 256, (X, Y, Z) => {
+    const m = fbm3(n, X*3, Y*3, Z*3, 5);
+    const g = 92 + m*105 + (fbm3(n, X*8+3, Y*8, Z*8, 3) - .5)*26;
+    return [g*.96, g*.93, g*.88];
+  });
+  craterPass(c, 320, 4177, .5);
+  return tex(c);
+}
+function venusTex(){
+  const n = makeNoise3(52);
+  return tex(canvasSphere(512, 256, (X, Y, Z, u, v) => {
+    const s = fbm3(n, X*1.2, Y*1.2, Z*4.2, 4);
+    const t = .5 + .32*Math.sin((v*5.5 + s*1.7) * Math.PI);
+    const w = (fbm3(n, X*4, Y*4, Z*9, 3) - .5)*20;
+    const col = mix3([206, 178, 128], [238, 222, 190], t);
+    return [col[0]+w, col[1]+w, col[2]+w];
+  }));
+}
+function earthTex(){
+  const n = makeNoise3(63), n2 = makeNoise3(64), n3 = makeNoise3(65);
+  return tex(canvasSphere(512, 256, (X, Y, Z) => {
+    const sl = Math.abs(Z);
+    const cont = fbm3(n, X*1.7, Y*1.7, Z*1.7, 5);
+    const det = fbm3(n2, X*4.6, Y*4.6, Z*4.6, 4) - .5;
+    if (sl > .93 || (cont > .68 && sl > .8)) return mix3([232, 240, 248], [206, 220, 234], det+.5);
+    const hgt = cont + det*.12;
+    if (hgt < .5){                                                    // ocean: deep -> shelf
+      const t = Math.max(0, Math.min(1, (hgt - .36) / .14));
+      return mix3([6, 22, 60], [30, 82, 142], t*t);
+    }
+    if (hgt < .516) return [192, 176, 128];                           // shoreline
+    const dry = fbm3(n3, X*2.1+7, Y*2.1, Z*2.1, 3);
+    const desert = 1 - Math.min(1, Math.abs(Math.abs(Z) - .38) / .2); // horse-latitudes deserts
+    let col = mix3([52, 94, 44], [172, 142, 90], Math.min(1, dry*.9 + desert*.55));
+    if (hgt > .62) col = mix3(col, [128, 118, 106], (hgt - .62)*5);
+    if (hgt > .72) col = mix3(col, [235, 240, 244], (hgt - .72)*6);
+    return col;
+  }));
+}
+function cloudTex(){
+  const n = makeNoise3(66);
+  return tex(canvasSphere(512, 256, (X, Y, Z) => {
+    const a = fbm3(n, X*2.6, Y*2.6, Z*2.6, 4);
+    const streak = fbm3(n, X*1.2, Y*1.2, Z*7+5, 3);
+    return [255, 255, 255, Math.max(0, Math.min(1, (a*.7 + streak*.5 - .62)*5))*235];
+  }));
+}
+function marsTex(){
+  const n = makeNoise3(71), n2 = makeNoise3(72);
+  const c = canvasSphere(512, 256, (X, Y, Z) => {
+    const sl = Math.abs(Z);
+    if (sl > .88) return mix3([226, 219, 211], [196, 188, 182], fbm3(n2, X*6, Y*6, Z*6, 3));
+    let col = mix3([104, 48, 26], [206, 124, 72], fbm3(n, X*2.3, Y*2.3, Z*2.3, 5));
+    const dark = fbm3(n2, X*1.5, Y*1.5, Z*1.5, 3);
+    if (dark > .58) col = mix3(col, [66, 38, 24], (dark - .58)*4);
+    return col;
+  });
+  craterPass(c, 140, 7271, .3);
+  return tex(c);
+}
+function gasTex(seed, opt){
+  const n = makeNoise3(seed);
+  return tex(canvasSphere(512, 256, (X, Y, Z, u, v) => {
+    const turb = fbm3(n, X*2.2, Y*2.2, Z*5.5, 4) - .5;
+    const b = v + turb*opt.warp;
+    const zone = .5 + .5*Math.sin(b*Math.PI*opt.bands + opt.phase);
+    let col = mix3(opt.lo, opt.hi, zone);
+    const w = (fbm3(n, X*6, Y*6, Z*12, 3) - .5)*opt.grain;
+    col = [col[0]+w, col[1]+w, col[2]+w];
+    if (opt.spot){
+      const du = Math.min(Math.abs(u - opt.spot.u), 1 - Math.abs(u - opt.spot.u)) / opt.spot.ru;
+      const dv = (v - opt.spot.v) / opt.spot.rv;
+      const e = du*du + dv*dv;
+      if (e < 1.8){
+        if (e < 1) col = mix3(col, opt.spot.col, 1 - e);
+        else if (e < 1.45) col = mix3(col, opt.spot.rim, .35);
+      }
+    }
+    return col;
+  }));
+}
+function jupiterTex(){
+  return gasTex(83, { bands:24, phase:1.2, warp:.045, grain:10,
+    lo:[168, 116, 78], hi:[226, 208, 176],
+    spot:{ u:.72, v:.655, ru:.085, rv:.05, col:[186, 92, 58], rim:[236, 222, 196] } });
+}
+function saturnTex(){ return gasTex(91, { bands:18, phase:.4, warp:.03, grain:7, lo:[196, 172, 120], hi:[238, 226, 190] }); }
+function uranusTex(){ return gasTex(97, { bands:9, phase:2, warp:.02, grain:4, lo:[148, 214, 224], hi:[176, 232, 240] }); }
+function neptuneTex(){
+  return gasTex(101, { bands:13, phase:.8, warp:.04, grain:8,
+    lo:[38, 64, 168], hi:[86, 124, 214],
+    spot:{ u:.35, v:.42, ru:.07, rv:.045, col:[22, 40, 120], rim:[150, 180, 235] } });
+}
+function moonTex(){
+  const n = makeNoise3(113);
+  const c = canvasSphere(512, 256, (X, Y, Z) => {
+    const m = fbm3(n, X*2.4, Y*2.4, Z*2.4, 5);
+    if (fbm3(n, X*1.1+4, Y*1.1, Z*1.1, 3) > .62) return mix3([56, 58, 68], [108, 110, 118], m);   // maria
+    return mix3([104, 104, 106], [184, 184, 180], m);
+  });
+  craterPass(c, 260, 1139, .45);
+  return tex(c);
+}
+const PLANET_TEX = { mercury:mercuryTex, venus:venusTex, earth:earthTex, mars:marsTex,
+  jupiter:jupiterTex, saturn:saturnTex, uranus:uranusTex, neptune:neptuneTex };
+
 function makeStars(){
   const rnd = mulberry32(7);
   function gauss(){ let u=0,v=0; while(!u) u=rnd(); while(!v) v=rnd(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
@@ -343,10 +514,17 @@ BODIES.forEach(b => {
   const tiltG = new THREE.Object3D();
   tiltG.rotation.z = -(b.tilt || 0) * D2R;
   pivot.add(tiltG);
-  const mat = new THREE.MeshStandardMaterial({ color:b.color, roughness:.92, metalness:0 });
-  if (b.bands) mat.map = bandTexture(b.bands, b.seed);
+  const mat = new THREE.MeshStandardMaterial({ roughness:.92, metalness:0 });
+  if (PLANET_TEX[b.id]) mat.map = PLANET_TEX[b.id]();
+  else mat.color = new THREE.Color(b.color);
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(b.size, 40, 28), mat);
   tiltG.add(mesh);
+  let clouds = null;
+  if (b.id === 'earth'){
+    clouds = new THREE.Mesh(new THREE.SphereGeometry(b.size * 1.02, 40, 28),
+      new THREE.MeshStandardMaterial({ map:cloudTex(), transparent:true, depthWrite:false, roughness:1 }));
+    tiltG.add(clouds);
+  }
   if (b.ring){
     const ring = new THREE.Mesh(new THREE.RingGeometry(b.size*1.35, b.size*2.3, 96),
       new THREE.MeshBasicMaterial({ map:ringTexture(), transparent:true, side:THREE.DoubleSide, depthWrite:false }));
@@ -368,14 +546,14 @@ BODIES.forEach(b => {
   const orbit = new THREE.Line(new THREE.BufferGeometry().setFromPoints(orbitPoints(b)),
     new THREE.LineBasicMaterial({ color:0x6f7aa8, transparent:true, opacity:.34 }));
   scene.add(orbit);
-  Object.assign(b, { pivot, tiltG, mesh, orbit });
+  Object.assign(b, { pivot, tiltG, mesh, orbit, clouds });
   byId[b.id] = b;
 });
 const earth = byId.earth;
 
 /* moon: tidally locked, exaggerated orbit radius */
 const moon = new THREE.Mesh(new THREE.SphereGeometry(.27, 24, 16),
-  new THREE.MeshStandardMaterial({ color:0xcfc9c0, roughness:1, metalness:0 }));
+  new THREE.MeshStandardMaterial({ map:moonTex(), roughness:1, metalness:0 }));
 scene.add(moon);
 addHit(moon, 'moon', .27);
 const moonOrbitPts = [];
@@ -508,6 +686,20 @@ function toggleScale(){
 }
 function toggleHelp(force){ const h = $('help'); h.hidden = force === undefined ? !h.hidden : !force; }
 function toggleChrome(){ $('ui').classList.toggle('hidden'); labelBox.classList.toggle('hidden'); }
+function toggleFullscreen(){
+  const el = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement){
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }
+}
+function syncFullBtn(){ setPressed($('btnFull'), !!(document.fullscreenElement || document.webkitFullscreenElement)); }
+document.addEventListener('fullscreenchange', syncFullBtn);
+document.addEventListener('webkitfullscreenchange', syncFullBtn);
+$('btnFull').onclick = toggleFullscreen;
 
 $('btnPause').onclick = togglePause;
 $('btnRev').onclick = () => { dir = -dir; setPressed($('btnRev'), dir < 0); };
@@ -542,7 +734,8 @@ window.addEventListener('keydown', e => {
   else if (k === 'l' || k === 'L') toggleLabels();
   else if (k === 'b' || k === 'B') toggleBelt();
   else if (k === 's' || k === 'S') toggleScale();
-  else if (k === 'f' || k === 'F') toggleChrome();
+  else if (k === 'f' || k === 'F') toggleFullscreen();
+  else if (k === 'h' || k === 'H') toggleChrome();
   else if (/^[0-9]$/.test(k)) focusOn(KEYS[+k]);
 });
 
@@ -654,6 +847,7 @@ function frame(now){
   updateBodies();
   BODIES.forEach(b => {
     b.mesh.rotation.y = ((simDays*24/b.rotH) % 1) * 2*Math.PI;   // true rotation periods
+    if (b.clouds) b.clouds.rotation.y = (b.mesh.rotation.y * 1.12) % (2*Math.PI);
     b.orbit.visible = showOrbits;
   });
   moonOrbit.visible = showOrbits;
