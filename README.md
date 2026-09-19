@@ -133,6 +133,40 @@ The dashboard will automatically open in your browser (defaulting to `http://loc
 
 ---
 
+## 🚀 Live Deployment
+
+The web dashboards are deployed and available in real time:
+
+### Public URLs
+| Service | Endpoint | Notes |
+|---|---|---|
+| **3D Command Deck** | [https://solarburn.vercel.app/3d](https://solarburn.vercel.app/3d) | WebGL Cesium globe, fullscreen inspector, zoom + track any object |
+| **2D Analytics** | [https://solarburn.vercel.app/2d](https://solarburn.vercel.app/2d) | Lightweight light curves, risk tables, raw telemetry feed |
+| **Landing Page** | [https://solarburn.vercel.app](https://solarburn.vercel.app) | Entry point, pick 3D/2D/console |
+| **Firebase Mirror** | [https://solar-f.web.app](https://solar-f.web.app) | CDN-hosted backup of the same dashboards |
+
+### Deploy commands used
+```bash
+# Vercel (primary, automatic on push)
+vercel --prod --yes            # → https://solarburn.vercel.app
+
+# Firebase (mirror)
+firebase deploy --only hosting # → https://solar-f.web.app
+```
+
+### Switching views
+From either dashboard, use the header button:
+- **3D → 2D**: `📊 2D Analytics`
+- **2D → 3D**: `🌐 3D Command Deck`
+
+### Local preview
+```bash
+python -m http.server 8123 --directory frontend/dashboard
+# http://localhost:8123 → landing page
+```
+
+---
+
 ## 📈 Planned Next Phase
 
 The Phase-1 build shows a complete working chain from raw telemetry to live alerts. To mature it toward operations-grade use, the planned next steps are:
