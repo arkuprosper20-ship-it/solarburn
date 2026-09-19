@@ -1,0 +1,25 @@
+{
+  "name": "SuryaDrishti — Aditya-L1 Solar Flare Intelligence",
+  "short_name": "SuryaDrishti",
+  "description": "Real-time Aditya-L1 SoLEXS/HEL1OS X-ray monitoring, causal flare nowcasting and physics-guided forecasting with 3D and 2D operator views.",
+  "id": "/",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05060f",
+  "theme_color": "#05060f",
+  "categories": ["science", "education", "utilities"],
+  "icons": [
+    { "src": "favicon-16x16.png",   "sizes": "16x16",   "type": "image/png" },
+    { "src": "favicon-32x32.png",   "sizes": "32x32",   "type": "image/png" },
+    { "src": "apple-touch-icon.png","sizes": "180x180", "type": "image/png" },
+    { "src": "icon-192.png",        "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png",        "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "favicon.svg",         "sizes": "any",     "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "3D Command Deck", "short_name": "3D",  "url": "./dashboard.html" },
+    { "name": "2D Analytics",    "short_name": "2D",  "url": "./dashboard_2d.html" }
+  ]
+}
