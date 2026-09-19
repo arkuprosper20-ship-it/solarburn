@@ -1,11 +1,35 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "name": "solarburn",
   "framework": null,
-  "cleanUrls": true,
+  "outputDirectory": "frontend/dashboard",
+  "cleanUrls": false,
   "trailingSlash": false,
-  "routes": [
-    { "src": "/", "status": 307, "headers": { "Location": "/dashboard" } },
-    { "src": "/favicon.ico", "dest": "/frontend/dashboard/favicon.svg" },
-    { "src": "/(.*)", "dest": "/frontend/dashboard/$1" }
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/3d", "destination": "/dashboard.html" },
+    { "source": "/2d", "destination": "/dashboard_2d.html" }
+  ],
+  "redirects": [
+    { "source": "/dashboard", "destination": "/3d", "permanent": false }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" }
+      ]
+    },
+    {
+      "source": "/(.*).html",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    },
+    {
+      "source": "/(.*).(js|css|svg|png|ico|webmanifest|jpg)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
+    }
   ]
 }
