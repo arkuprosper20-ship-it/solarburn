@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=coverage, user-scalable=yes, minimum-scale=1.0, maximum-scale=5.0">
 <title>SuryaDrishti — 2D Analytics | Aditya-L1 Solar Flare Intelligence</title>
 <meta name="description" content="Aditya-L1 SoLEXS and HEL1OS 2D analytics console: live X-ray light curves, causal nowcast events, active-region risk, solar wind and flare-class probability.">
 <meta name="theme-color" content="#05060f">
@@ -42,7 +42,13 @@
       <h1>2D ANALYTICS CONSOLE — SoLEXS / HEL1OS FLARE MONITOR</h1>
     </div>
   </div>
-  <div class="h-right">
+    <div class="h-right">
+    <div class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle navigation menu" role="button" tabindex="0">
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+    </div>
+    <div class="h-right-inner">
     <div class="clock-box">
       <div class="ck-item"><span class="ck-lbl">LOCAL</span><span class="ck-val" id="local-clock">--:--:--</span></div>
       <div class="ck-sep"></div>
@@ -56,7 +62,8 @@
     <div class="sys-status" style="background:rgba(0,200,255,0.08);border:1px solid rgba(0,200,255,0.25);color:#00c8ff;margin-right:8px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;font-size:0.65rem;font-family:'Orbitron',sans-serif;font-weight:700">
       <span class="sdot" style="background:#00c8ff;box-shadow:0 0 8px #00c8ff;width:6px;height:6px;border-radius:50%;display:inline-block"></span><span class="stxt">IS4OM / DSSAM ACTIVE</span>
     </div>
-    <div class="sys-status" id="sys-status"><span class="sdot"></span><span class="stxt">FEED ACTIVE</span></div>
+      <div class="sys-status" id="sys-status"><span class="sdot"></span><span class="stxt">FEED ACTIVE</span></div>
+  </div>
   </div>
 </header>
 

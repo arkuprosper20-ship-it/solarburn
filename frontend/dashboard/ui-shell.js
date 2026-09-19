@@ -252,6 +252,41 @@
       if (k === '2') { location.href = './dashboard_2d.html'; return; }
       if (k === '3') { location.href = './index.html'; return; }
     });
+    }
+
+  /* ----------------------------------------------- mobile menu toggle --- */
+  function bindMobileMenu() {
+    var btn = document.getElementById('mobile-menu-btn');
+    var inner = document.querySelector('.h-right-inner');
+    if (!btn || !inner) return;
+    btn.setAttribute('aria-expanded', 'false');
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !expanded);
+      inner.classList.toggle('mobile-open', !expanded);
+      inner.classList.toggle('mobile-closed', expanded);
+    });
+    btn.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+    // close menu when clicking outside
+    document.addEventListener('click', function () {
+      inner.classList.remove('mobile-open');
+      inner.classList.add('mobile-closed');
+      btn.setAttribute('aria-expanded', 'false');
+    });
+    // close on ESC
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        inner.classList.remove('mobile-open');
+        inner.classList.add('mobile-closed');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
   }
 
   /* ---------------------------------------------------- alert watcher ----- */
@@ -290,6 +325,7 @@
     buildSplash();
     buildNav();
     bindKeys();
+    bindMobileMenu();
     watchAlerts();
 
     if (store(STORE.focus) === '1') UI.setFocusMode(true);
