@@ -36,16 +36,10 @@
 <!-- HEADER -->
 <header class="dash-header">
   <div class="h-left">
-    <svg class="isro-svg" viewBox="0 0 44 44" width="40" height="40">
-      <circle cx="22" cy="22" r="20" fill="none" stroke="#ff8c00" stroke-width="2"/>
-      <circle cx="22" cy="22" r="12" fill="none" stroke="#ff8c00" stroke-width="1.5"/>
-      <circle cx="22" cy="22" r="4" fill="#ff8c00"/>
-      <ellipse cx="22" cy="22" rx="20" ry="7" fill="none" stroke="#00c8ff" stroke-width="1.5" transform="rotate(-30 22 22)"/>
-      <ellipse cx="22" cy="22" rx="20" ry="7" fill="none" stroke="#00c8ff" stroke-width="0.8" opacity="0.5" transform="rotate(30 22 22)"/>
-    </svg>
+    <img class="isro-svg" src="favicon.svg" width="40" height="40" alt="SuryaDrishti mark" style="border-radius:9px">
     <div class="h-title">
       <span class="h-agency">ISRO · SPACE APPLICATIONS CENTRE · ADITYA-L1 MISSION · PS-15</span>
-      <h1>SOLAR SITUATIONAL AWARENESS CENTER — REAL-TIME FLARE MONITOR (2D)</h1>
+      <h1>2D ANALYTICS CONSOLE — SoLEXS / HEL1OS FLARE MONITOR</h1>
     </div>
   </div>
   <div class="h-right">
@@ -55,7 +49,7 @@
       <div class="ck-item"><span class="ck-lbl">UTC</span><span class="ck-val" id="utc-clock">--:--:-- UTC</span></div>
     </div>
     <div class="h-actions">
-      <a href="http://localhost:8501" target="_blank" style="text-decoration: none;"><button class="hbtn amber" title="Open Streamlit Scientific Dashboard">📊 Streamlit Dashboard</button></a>
+      <a href="dashboard.html" style="text-decoration: none;"><button class="hbtn amber" title="Switch to the 3D Command Deck">🌐 3D Command Deck</button></a>
       <button class="hbtn red" id="btn-sound" title="Enable space ambient & telemetry sound">🔇 MUTE</button>
       <button class="hbtn" id="btn-notify" title="Enable alert notifications">🔔 NOTIFY</button>
     </div>
@@ -183,5 +177,8 @@
 </div>
 
 <script src="dashboard.js"></script>
+
+<!-- shared application chrome: nav, splash, toasts, shortcuts -->
+<script src="ui-shell.js"></script>
 </body>
 </html>

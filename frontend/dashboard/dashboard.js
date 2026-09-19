@@ -4358,7 +4358,102 @@ if (typeof tick === 'function') {
         console.info('[LiveData] REST poll OK — SoLEXS:', dp.solexs, 'Wind:', dp.windSpd);
       }
     } catch (e) {
-      console.warn('[LiveData] REST poll failed — continuing with static telemetry:', e.message);
+      console.warn('[LiveData] REST poll failed — trying direct NOAA SWPC:', e.message);
+      pollNoaaDirect();
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Direct NOAA SWPC fallback — for hosted deploys with no local ingest.
+  // Uses CORS-enabled public SWPC endpoints (no API key required) and
+  // mirrors the ingest service's GOES→SoLEXS/HEL1OS cps calibration.
+  // ------------------------------------------------------------------
+  const NOAA_URLS = {
+    xray: [
+      'https://services.swpc.nasa.gov/json/goes/primary/xrays-6-hour.json'
+    ],
+    plasma: [
+      'https://services.swpc.nasa.gov/json/products/solar-wind/plasma-2-hour.json',
+      'https://services.swpc.nasa.gov/json/plasma/plasma-2-day.json'
+    ],
+    mag: [
+      'https://services.swpc.nasa.gov/json/products/solar-wind/mag-2-hour.json',
+      'https://services.swpc.nasa.gov/json/mag/mag-2-hour.json'
+    ],
+    kp: [
+      'https://services.swpc.nasa.gov/json/products/noaa-planetary-k-index.json',
+      'https://services.swpc.nasa.gov/json/noaa-planetary-k-index.json'
+    ]
+  };
+  let noaaDirectTimer = null;
+
+  function _fluxToCps(flux, channel) {
+    const lg = Math.log10(Math.max(1e-10, Number(flux) || 1e-10));
+    return channel === 'solexs'
+      ? Math.max(1.0, lg * 200 + 2000)
+      : Math.max(0.1, lg * 80 + 800);
+  }
+
+  async function _fetchFirstOk(urls, timeoutMs) {
+    for (const url of urls) {
+      try {
+        const r = await fetch(url, { signal: AbortSignal.timeout(timeoutMs || 9000) });
+        if (r.ok) return await r.json();
+      } catch (_) { /* try next candidate */ }
+    }
+    return null;
+  }
+
+  async function pollNoaaDirect() {
+    try {
+      const [xr, pl, mg, kp] = await Promise.all([
+        _fetchFirstOk(NOAA_URLS.xray),
+        _fetchFirstOk(NOAA_URLS.plasma),
+        _fetchFirstOk(NOAA_URLS.mag),
+        _fetchFirstOk(NOAA_URLS.kp)
+      ]);
+      if (!xr && !pl) throw new Error('all SWPC endpoints unreachable');
+
+      const dp = { dataSource: 'NOAA SWPC (direct)' };
+
+      if (Array.isArray(xr) && xr.length) {
+        const rev = xr.slice().reverse();
+        const bEntry = rev.find(e => e.channel === 'b') || rev[0];
+        const aEntry = rev.find(e => e.channel === 'a');
+        const fB = Number(bEntry && (bEntry.flux != null ? bEntry.flux : bEntry.observed_flux));
+        const fA = Number(aEntry && (aEntry.flux != null ? aEntry.flux : aEntry.observed_flux));
+        if (Number.isFinite(fB)) {
+          dp.goesXrayB = fB;
+          dp.solexs = _fluxToCps(fB, 'solexs');
+        }
+        if (Number.isFinite(fA)) {
+          dp.goesXrayA = fA;
+          dp.hel1os = _fluxToCps(fA, 'hel1os');
+        }
+      }
+
+      if (Array.isArray(pl) && pl.length) {
+        const last = pl[pl.length - 1];
+        dp.windSpd = Number(last.speed);
+        dp.windDensity = Number(last.density);
+      }
+      if (Array.isArray(mg) && mg.length) {
+        const last = mg[mg.length - 1];
+        dp.bz = Number(last.bz_gsm != null ? last.bz_gsm : last.bz);
+      }
+      if (Array.isArray(kp) && kp.length) {
+        const last = kp[kp.length - 1];
+        dp.kpIndex = Number(last.kp_index != null ? last.kp_index : last.estimated_kp);
+      }
+
+      applyLivePacket(dp);
+      console.info('[LiveData] Direct NOAA SWPC OK — SoLEXS:', dp.solexs, 'Wind:', dp.windSpd, 'Bz:', dp.bz);
+
+      if (!noaaDirectTimer) {
+        noaaDirectTimer = setInterval(pollNoaaDirect, 60000);
+      }
+    } catch (e) {
+      console.warn('[LiveData] Direct NOAA fetch failed — continuing with static telemetry:', e.message);
     }
   }
 
