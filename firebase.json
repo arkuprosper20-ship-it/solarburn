@@ -1,11 +1,12 @@
 {
   "hosting": [
     {
-      "site": "solar-f",
+            "target": "dashboard",
       "public": "frontend/dashboard",
       "rewrites": [
-        { "source": "/", "destination": "/dashboard.html" },
-        { "source": "/index.html", "destination": "/dashboard.html" }
+        { "source": "/", "destination": "/index.html" },
+        { "source": "/3d", "destination": "/dashboard.html" },
+        { "source": "/2d", "destination": "/dashboard_2d.html" }
       ],
       "ignore": [
         "firebase.json",
@@ -24,11 +25,23 @@
       "headers": [
         {
           "source": "**/*.@(js|css)",
-          "headers": [{ "key": "Cache-Control", "value": "max-age=3600" }]
+          "headers": [
+            { "key": "Cache-Control", "value": "public, max-age=3600" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" }
+          ]
+        },
+        {
+          "source": "**/*.@(png|svg|ico|webmanifest|jpg)",
+          "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
         },
         {
           "source": "**/*.html",
-          "headers": [{ "key": "Cache-Control", "value": "max-age=300" }]
+          "headers": [
+            { "key": "Cache-Control", "value": "public, max-age=300" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
         }
       ]
     }
